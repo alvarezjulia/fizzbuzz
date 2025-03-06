@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: FizzBuzz API
+  description: A configurable FizzBuzz implementation with request statistics tracking
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /fizzbuzz:
+    post:
+      summary: Generate a FizzBuzz sequence
+      description: Generates a customized FizzBuzz sequence based on the provided parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FizzBuzzRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FizzBuzzResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "divisors must be positive"
+        '405':
+          description: Method not allowed
+
+  /stats:
+    get:
+      summary: Get usage statistics
+      description: Returns information about the most frequently requested parameters
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+        '405':
+          description: Method not allowed
+
+components:
+  schemas:
+    FizzBuzzRequest:
+      type: object
+      required:
+        - firstDivisor
+        - secondDivisor
+        - limit
+        - firstWord
+        - secondWord
+      properties:
+        firstDivisor:
+          type: integer
+          minimum: 1
+          example: 3
+          description: First number to divide by
+        secondDivisor:
+          type: integer
+          minimum: 1
+          example: 5
+          description: Second number to divide by
+        limit:
+          type: integer
+          minimum: 1
+          example: 100
+          description: Upper limit of the sequence
+        firstWord:
+          type: string
+          minLength: 1
+          example: "Fizz"
+          description: Word to replace numbers divisible by firstDivisor
+        secondWord:
+          type: string
+          minLength: 1
+          example: "Buzz"
+          description: Word to replace numbers divisible by secondDivisor
+
+    FizzBuzzResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: string
+          example: ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz"]
+
+    Stats:
+      type: object
+      properties:
+        parameters:
+          $ref: '#/components/schemas/FizzBuzzRequest'
+        hits:
+          type: integer
+          description: Number of times these parameters have been requested
+          example: 42 
